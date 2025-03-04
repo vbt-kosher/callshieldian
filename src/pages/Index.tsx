@@ -32,20 +32,16 @@ const Index = () => {
   const [testDuration, setTestDuration] = useState('200');
   const [isLoading, setIsLoading] = useState(false);
   
-  // Calculate statistics
   const totalCalls = calls.length;
   const flaggedCalls = calls.filter(call => call.flagged).length;
   const totalBlacklisted = blacklistedNumbers.length;
   
-  // Sort calls by date (newest first)
   const sortedCalls = [...calls].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
   
-  // Get recent calls (last 5)
   const recentCalls = sortedCalls.slice(0, 5);
   
-  // Handle simulate call
   const handleSimulateCall = async () => {
     if (!testPhoneNumber || !testDuration) {
       toast({
@@ -67,11 +63,9 @@ const Index = () => {
     }
   };
   
-  // Check permissions on load
   useEffect(() => {
     const checkPermissions = async () => {
       if (hasPermission === null || hasPermission === false) {
-        // If no permissions, request them (in a real app, we'd show a UI first)
         await requestPermissions();
       }
     };
@@ -86,7 +80,6 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 pt-24 pb-4">
-        {/* Welcome Section */}
         <section className="mb-8 animate-slide-up">
           <h1 className="text-3xl font-semibold tracking-tight">
             CallShield
@@ -96,7 +89,6 @@ const Index = () => {
             to identify and filter potentially problematic numbers.
           </p>
           
-          {/* Status banner */}
           <Card className={`mt-6 p-4 flex items-center space-x-3
             ${recordingEnabled 
               ? "bg-green-100 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" 
@@ -143,7 +135,6 @@ const Index = () => {
           </Card>
         </section>
         
-        {/* Statistics Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium">Call Statistics</h2>
@@ -192,7 +183,6 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Recent Calls Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium">Recent Calls</h2>
@@ -235,7 +225,6 @@ const Index = () => {
         </section>
       </main>
       
-      {/* Simulate Call Dialog */}
       <Dialog open={simulateOpen} onOpenChange={setSimulateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

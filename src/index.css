@@ -136,8 +136,10 @@
     @apply animate-scale-in motion-reduce:animate-none;
   }
   
+  /* Fixed the circular dependency by directly applying the animation properties instead of self-referencing */
   .animate-slide-up {
-    @apply animate-slide-up motion-reduce:animate-none;
+    @apply motion-reduce:animate-none;
+    animation: slide-up 0.4s ease-out;
   }
 }
 
@@ -160,4 +162,16 @@
 .page-exit-active {
   opacity: 0;
   transition: opacity 200ms;
+}
+
+/* Define the slide-up animation directly */
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

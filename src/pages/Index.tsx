@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Shield, Clock, FileText, BarChart3, PlusCircle } from 'lucide-react';
@@ -26,7 +25,7 @@ import { useCallRecording } from '@/hooks/useCallRecording';
 const Index = () => {
   const navigate = useNavigate();
   const { calls, blacklistedNumbers, recordingEnabled } = useApp();
-  const { hasPermissions, requestPermissions, makeTestCall } = useCallRecording();
+  const { hasPermission, requestPermissions, makeTestCall } = useCallRecording();
   
   const [simulateOpen, setSimulateOpen] = useState(false);
   const [testPhoneNumber, setTestPhoneNumber] = useState('+1 (555) ');
@@ -71,7 +70,7 @@ const Index = () => {
   // Check permissions on load
   useEffect(() => {
     const checkPermissions = async () => {
-      if (hasPermissions === null || hasPermissions === false) {
+      if (hasPermission === null || hasPermission === false) {
         // If no permissions, request them (in a real app, we'd show a UI first)
         await requestPermissions();
       }
@@ -80,7 +79,7 @@ const Index = () => {
     if (recordingEnabled) {
       checkPermissions();
     }
-  }, [hasPermissions, requestPermissions, recordingEnabled]);
+  }, [hasPermission, requestPermissions, recordingEnabled]);
   
   return (
     <div className="min-h-screen flex flex-col pb-20">

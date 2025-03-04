@@ -37,7 +37,7 @@ import { toast } from '@/components/ui/use-toast';
 
 const Settings = () => {
   const { recordingEnabled, setRecordingEnabled, clearData } = useApp();
-  const { hasPermissions, requestPermissions } = useCallRecording();
+  const { hasPermission, requestPermissions } = useCallRecording();
   
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +46,7 @@ const Settings = () => {
   const [minDuration, setMinDuration] = useState(180); // 3 minutes in seconds
   
   const handleToggleRecording = async (enabled: boolean) => {
-    if (enabled && !hasPermissions) {
+    if (enabled && !hasPermission) {
       const granted = await requestPermissions();
       if (!granted) {
         toast({
@@ -162,7 +162,7 @@ const Settings = () => {
                 description="Permission to record phone calls"
                 icon={<Phone className="h-4 w-4 mr-2 text-primary/80" />}
                 onRequest={requestPermissions}
-                hasPermission={hasPermissions}
+                hasPermission={hasPermission}
               />
               
               <PermissionRequest
@@ -170,7 +170,7 @@ const Settings = () => {
                 description="Permission to access the microphone"
                 icon={<Mic className="h-4 w-4 mr-2 text-primary/80" />}
                 onRequest={requestPermissions}
-                hasPermission={hasPermissions}
+                hasPermission={hasPermission}
               />
             </div>
           </section>

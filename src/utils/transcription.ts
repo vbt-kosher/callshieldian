@@ -3,12 +3,22 @@
 // In a real application, this would integrate with a speech-to-text service
 // like Google Cloud Speech-to-Text, Azure Speech, or similar
 
+import { encryptData, decryptData } from './encryption';
+
 interface TranscriptionResult {
   text: string;
   confidence: number;
+  encrypted?: boolean;
 }
 
-export const transcribeAudio = async (audioData: string): Promise<TranscriptionResult> => {
+/**
+ * Transcribe audio data to text
+ * 
+ * @param audioData The audio data as a base64 string
+ * @param encrypt Whether to encrypt the transcription result
+ * @returns Promise resolving to the transcription result
+ */
+export const transcribeAudio = async (audioData: string, encrypt: boolean = true): Promise<TranscriptionResult> => {
   // Mock implementation - in a real app, this would call a speech-to-text API
   console.log('Transcribing audio data...', audioData.substring(0, 50) + '...');
   
@@ -32,10 +42,45 @@ export const transcribeAudio = async (audioData: string): Promise<TranscriptionR
   ];
   
   const randomIndex = Math.floor(Math.random() * mockTranscriptions.length);
+  const transcriptionText = mockTranscriptions[randomIndex];
+  const confidence = 0.85 + (Math.random() * 0.1); // Random confidence between 0.85 and 0.95
+  
+  const result: TranscriptionResult = {
+    text: transcriptionText,
+    confidence: confidence
+  };
+  
+  // Encrypt the transcription if requested
+  if (encrypt) {
+    // Get the security token or use a fallback
+    const securityToken = localStorage.getItem('callshield_security_token') || 'fallback-encryption-key';
+    
+    result.text = encryptData(transcriptionText, securityToken);
+    result.encrypted = true;
+    
+    console.log('Transcription encrypted for security');
+  }
+  
+  return result;
+};
+
+/**
+ * Decrypt an encrypted transcription
+ * 
+ * @param encryptedResult The encrypted transcription result
+ * @returns Decrypted transcription result
+ */
+export const decryptTranscription = (encryptedResult: TranscriptionResult): TranscriptionResult => {
+  if (!encryptedResult.encrypted) {
+    return encryptedResult;
+  }
+  
+  const securityToken = localStorage.getItem('callshield_security_token') || 'fallback-encryption-key';
   
   return {
-    text: mockTranscriptions[randomIndex],
-    confidence: 0.85 + (Math.random() * 0.1) // Random confidence between 0.85 and 0.95
+    text: decryptData(encryptedResult.text, securityToken),
+    confidence: encryptedResult.confidence,
+    encrypted: false
   };
 };
 

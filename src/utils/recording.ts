@@ -4,6 +4,7 @@
 // to record actual phone calls
 
 import { toast } from '@/components/ui/use-toast';
+import { encryptData, decryptData } from '@/utils/encryption';
 
 export interface RecordingSession {
   id: string;
@@ -17,9 +18,21 @@ class CallRecorderManager {
   private currentSession: RecordingSession | null = null;
   private timer: number | null = null;
   private permissions: string[] = [];
+  private securityToken: string | null = null;
   
   constructor() {
     console.log('CallRecorderManager initialized');
+    // Try to restore security token
+    this.securityToken = localStorage.getItem('callshield_security_token');
+  }
+  
+  setSecurityToken(token: string) {
+    this.securityToken = token;
+    localStorage.setItem('callshield_security_token', token);
+  }
+  
+  hasSecurityToken(): boolean {
+    return this.securityToken !== null;
   }
   
   async checkPermissions(): Promise<boolean> {
@@ -50,6 +63,17 @@ class CallRecorderManager {
   startRecording(phoneNumber: string): RecordingSession | null {
     if (this.currentSession) {
       console.warn('Recording already in progress');
+      return null;
+    }
+    
+    // Security check
+    if (!this.hasSecurityToken()) {
+      console.error('Security token missing, cannot start recording');
+      toast({
+        title: "Security Error",
+        description: "Application security validation failed",
+        variant: "destructive",
+      });
       return null;
     }
     
@@ -97,9 +121,12 @@ class CallRecorderManager {
     // Mock audio data as base64 string (in a real app, this would be actual audio)
     const mockAudioData = 'data:audio/wav;base64,UklGRiXuAgBXQVZFZm10IBAAAAABAAEA...';
     
+    // Encrypt the audio data
+    const encryptedAudioData = encryptData(mockAudioData, this.securityToken || 'fallback-key');
+    
     return {
       session: completedSession,
-      audioData: mockAudioData
+      audioData: encryptedAudioData
     };
   }
   
@@ -123,6 +150,11 @@ export const simulateOutgoingCall = (phoneNumber: string, durationSeconds: numbe
       description: `Simulating call to ${phoneNumber}...`,
     });
     
+    // Security check before starting recording
+    if (!callRecorder.hasSecurityToken()) {
+      callRecorder.setSecurityToken(generateSecurityToken());
+    }
+    
     const session = callRecorder.startRecording(phoneNumber);
     
     setTimeout(() => {
@@ -142,3 +174,13 @@ export const simulateOutgoingCall = (phoneNumber: string, durationSeconds: numbe
     }, 2000); // Mock delay for demo purposes
   });
 };
+
+// Generate a security token for the app
+const generateSecurityToken = (): string => {
+  const randomBytes = new Uint8Array(16);
+  window.crypto.getRandomValues(randomBytes);
+  return Array.from(randomBytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+};
+

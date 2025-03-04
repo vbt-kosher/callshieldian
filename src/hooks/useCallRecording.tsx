@@ -4,20 +4,63 @@ import { callRecorder, RecordingSession, simulateOutgoingCall } from '@/utils/re
 import { toast } from '@/components/ui/use-toast';
 import { useApp } from '@/context/AppContext';
 import { transcribeAudio } from '@/utils/transcription';
+import { hashData, obfuscatePhoneNumber } from '@/utils/encryption';
 
 export const useCallRecording = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [activeSession, setActiveSession] = useState<RecordingSession | null>(null);
+  const [securityVerified, setSecurityVerified] = useState<boolean>(false);
   const { addCall, isBlacklisted, recordingEnabled } = useApp();
   
-  // Check permissions on init
+  // Check permissions and security status on init
   useEffect(() => {
-    const checkPermissions = async () => {
-      const result = await callRecorder.checkPermissions();
-      setHasPermission(result);
+    const initialize = async () => {
+      // Check recording permissions
+      const permResult = await callRecorder.checkPermissions();
+      setHasPermission(permResult);
+      
+      // Check if security token exists
+      const hasToken = callRecorder.hasSecurityToken();
+      setSecurityVerified(hasToken);
+      
+      // If no security token, create one
+      if (!hasToken) {
+        // In a real app, we'd verify device integrity here
+        await verifyEnvironment();
+      }
     };
     
-    checkPermissions();
+    initialize();
+  }, []);
+  
+  // Verify execution environment for security
+  const verifyEnvironment = useCallback(async () => {
+    try {
+      // Check if running in a secure context
+      const isSecureContext = window.isSecureContext;
+      
+      // In a real app, add additional checks:
+      // - Check if running in an emulator
+      // - Verify app signature
+      // - Check for debugging tools
+      // - Detect rooted/jailbroken devices
+      
+      if (isSecureContext) {
+        console.log('Running in a secure context');
+        return true;
+      } else {
+        console.warn('Not running in a secure context!');
+        toast({
+          title: "Security Warning",
+          description: "Application is running in an insecure environment.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Environment verification error:', error);
+      return false;
+    }
   }, []);
   
   // Request necessary permissions
@@ -62,21 +105,41 @@ export const useCallRecording = () => {
       return;
     }
     
+    // Check blacklist before attempting call
     if (isBlacklisted(phoneNumber)) {
       toast({
         title: "Call Blocked",
-        description: `Number ${phoneNumber} is blacklisted.`,
+        description: `Number ${obfuscatePhoneNumber(phoneNumber)} is blacklisted.`,
         variant: "destructive",
       });
       return;
     }
     
+    // Ensure permissions are granted
     if (!hasPermission) {
       const granted = await requestPermissions();
       if (!granted) return;
     }
     
+    // Verify security status
+    if (!securityVerified) {
+      const verified = await verifyEnvironment();
+      if (!verified) {
+        toast({
+          title: "Security Error",
+          description: "Call cannot be made due to security concerns.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSecurityVerified(true);
+    }
+    
     try {
+      // Create a non-reversible hash of the phone number for logging
+      const phoneHash = await hashData(phoneNumber);
+      console.log(`Making call to hashed number: ${phoneHash.substring(0, 8)}...`);
+      
       // In a real app, this would hook into actual phone calls
       // Here we're just simulating for demonstration
       const session = await simulateOutgoingCall(phoneNumber, duration);
@@ -107,13 +170,15 @@ export const useCallRecording = () => {
       });
       return null;
     }
-  }, [hasPermission, requestPermissions, addCall, isBlacklisted, recordingEnabled]);
+  }, [hasPermission, requestPermissions, addCall, isBlacklisted, recordingEnabled, securityVerified, verifyEnvironment]);
   
   return {
     hasPermission,
     requestPermissions,
     activeSession,
     isRecording: !!activeSession,
+    securityVerified,
+    verifyEnvironment,
     makeTestCall
   };
 };

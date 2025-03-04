@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   Settings as SettingsIcon, 
@@ -46,7 +45,6 @@ const Settings = () => {
   const [autoBlacklist, setAutoBlacklist] = useState(true);
   const [minDuration, setMinDuration] = useState(180); // 3 minutes in seconds
   
-  // Handle enabling call recording
   const handleToggleRecording = async (enabled: boolean) => {
     if (enabled && !hasPermissions) {
       const granted = await requestPermissions();
@@ -69,10 +67,8 @@ const Settings = () => {
     });
   };
   
-  // Handle reset
   const handleReset = async () => {
     setIsLoading(true);
-    // Simulate API delay for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
     clearData();
     setIsLoading(false);
@@ -84,7 +80,6 @@ const Settings = () => {
       <Header />
       
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 pt-24 pb-4">
-        {/* Header Section */}
         <section className="mb-8 animate-slide-up">
           <h1 className="text-3xl font-semibold tracking-tight flex items-center">
             <SettingsIcon className="mr-2 h-7 w-7 text-primary/80" />
@@ -95,9 +90,7 @@ const Settings = () => {
           </p>
         </section>
         
-        {/* Main Settings */}
         <div className="space-y-8">
-          {/* Call Recording Section */}
           <section className="animate-slide-up" style={{ animationDelay: '50ms' }}>
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <Phone className="mr-2 h-5 w-5 text-muted-foreground" />
@@ -157,7 +150,6 @@ const Settings = () => {
             </Card>
           </section>
           
-          {/* Permissions Section */}
           <section className="animate-slide-up" style={{ animationDelay: '100ms' }}>
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <Shield className="mr-2 h-5 w-5 text-muted-foreground" />
@@ -170,7 +162,7 @@ const Settings = () => {
                 description="Permission to record phone calls"
                 icon={<Phone className="h-4 w-4 mr-2 text-primary/80" />}
                 onRequest={requestPermissions}
-                hasPermissions={hasPermissions}
+                hasPermission={hasPermissions}
               />
               
               <PermissionRequest
@@ -178,12 +170,11 @@ const Settings = () => {
                 description="Permission to access the microphone"
                 icon={<Mic className="h-4 w-4 mr-2 text-primary/80" />}
                 onRequest={requestPermissions}
-                hasPermissions={hasPermissions}
+                hasPermission={hasPermissions}
               />
             </div>
           </section>
           
-          {/* Privacy Notice */}
           <section className="animate-slide-up" style={{ animationDelay: '150ms' }}>
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <Info className="mr-2 h-5 w-5 text-muted-foreground" />
@@ -217,7 +208,6 @@ const Settings = () => {
             </Card>
           </section>
           
-          {/* Reset Data */}
           <section className="animate-slide-up" style={{ animationDelay: '200ms' }}>
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <AlertTriangle className="mr-2 h-5 w-5 text-muted-foreground" />
@@ -256,7 +246,6 @@ const Settings = () => {
         </div>
       </main>
       
-      {/* Reset Confirmation Dialog */}
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

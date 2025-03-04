@@ -6,7 +6,7 @@ import { useApp } from '@/context/AppContext';
 import { transcribeAudio } from '@/utils/transcription';
 
 export const useCallRecording = () => {
-  const [hasPermissions, setHasPermissions] = useState<boolean | null>(null);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [activeSession, setActiveSession] = useState<RecordingSession | null>(null);
   const { addCall, isBlacklisted, recordingEnabled } = useApp();
   
@@ -14,7 +14,7 @@ export const useCallRecording = () => {
   useEffect(() => {
     const checkPermissions = async () => {
       const result = await callRecorder.checkPermissions();
-      setHasPermissions(result);
+      setHasPermission(result);
     };
     
     checkPermissions();
@@ -24,7 +24,7 @@ export const useCallRecording = () => {
   const requestPermissions = useCallback(async () => {
     try {
       const granted = await callRecorder.requestPermissions();
-      setHasPermissions(granted);
+      setHasPermission(granted);
       
       if (granted) {
         toast({
@@ -71,7 +71,7 @@ export const useCallRecording = () => {
       return;
     }
     
-    if (!hasPermissions) {
+    if (!hasPermission) {
       const granted = await requestPermissions();
       if (!granted) return;
     }
@@ -107,10 +107,10 @@ export const useCallRecording = () => {
       });
       return null;
     }
-  }, [hasPermissions, requestPermissions, addCall, isBlacklisted, recordingEnabled]);
+  }, [hasPermission, requestPermissions, addCall, isBlacklisted, recordingEnabled]);
   
   return {
-    hasPermissions,
+    hasPermission,
     requestPermissions,
     activeSession,
     isRecording: !!activeSession,

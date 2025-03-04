@@ -1,4 +1,3 @@
-
 import { Call, CallType } from '@/context/AppContext';
 
 // This is a mock implementation of call analysis
@@ -23,19 +22,28 @@ export const analyzeTranscription = async (transcription: string): Promise<Analy
   // Mock analysis logic - just checking for keywords in this demo
   const lowerText = transcription.toLowerCase();
   
-  if (lowerText.includes('news') || lowerText.includes('report') || lowerText.includes('headlines')) {
+  // Hebrew and English keywords
+  if (lowerText.includes('news') || lowerText.includes('report') || 
+      lowerText.includes('headlines') || lowerText.includes('חדשות') || 
+      lowerText.includes('מנוי') || lowerText.includes('עיתון')) {
     return { type: 'news', confidence: 0.87, flagged: true };
   }
   
-  if (lowerText.includes('sports') || lowerText.includes('game') || lowerText.includes('score')) {
+  if (lowerText.includes('sports') || lowerText.includes('game') || 
+      lowerText.includes('score') || lowerText.includes('ספורט') || 
+      lowerText.includes('משחק') || lowerText.includes('שער')) {
     return { type: 'sports', confidence: 0.92, flagged: true };
   }
   
-  if (lowerText.includes('press 1') || lowerText.includes('automated') || lowerText.includes('menu')) {
+  if (lowerText.includes('press 1') || lowerText.includes('automated') || 
+      lowerText.includes('menu') || lowerText.includes('הקש') || 
+      lowerText.includes('אוטומטי') || lowerText.includes('מערכת')) {
     return { type: 'automated', confidence: 0.95, flagged: true };
   }
   
-  if (lowerText.includes('adult') || lowerText.includes('premium') || lowerText.includes('charge')) {
+  if (lowerText.includes('adult') || lowerText.includes('premium') || 
+      lowerText.includes('charge') || lowerText.includes('פרימיום') || 
+      lowerText.includes('חיוב') || lowerText.includes('תשלום')) {
     return { type: 'inappropriate', confidence: 0.89, flagged: true };
   }
   
@@ -56,15 +64,15 @@ export const formatPhoneNumber = (phoneNumber: string): string => {
 
 export const getCallTypeLabel = (type: CallType): string => {
   const labels: Record<CallType, string> = {
-    normal: 'Normal Call',
-    news: 'News Content',
-    sports: 'Sports Content',
-    inappropriate: 'Inappropriate Content',
-    automated: 'Automated System',
-    unknown: 'Unknown'
+    normal: 'שיחה רגילה',
+    news: 'תוכן חדשותי',
+    sports: 'תוכן ספורט',
+    inappropriate: 'תוכן לא ראוי',
+    automated: 'מערכת אוטומטית',
+    unknown: 'לא ידוע'
   };
   
-  return labels[type] || 'Unknown';
+  return labels[type] || 'לא ידוע';
 };
 
 export const getCallTypeColor = (type: CallType): string => {

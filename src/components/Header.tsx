@@ -13,14 +13,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/context/AppContext';
-import { useMobile } from '@/hooks/use-mobile';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Header = () => {
   const { recordingEnabled, setRecordingEnabled } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   // Close mobile menu on route change
@@ -131,61 +130,54 @@ const Header = () => {
       </div>
       
       {/* Mobile Navigation Overlay */}
-      <AnimatePresence>
-        {showMobileMenu && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border/40"
-          >
-            <nav className="container max-w-5xl mx-auto flex flex-col py-3 px-4 space-y-1">
-              {navItems.map((item) => (
-                <Button
-                  key={item.path}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "justify-start w-full",
-                    location.pathname === item.path && "bg-accent text-accent-foreground"
-                  )}
-                  onClick={() => navigate(item.path)}
-                >
-                  <item.icon className="h-4 w-4 mr-2" />
-                  {item.name}
-                </Button>
-              ))}
-              
-              <div className="pt-2 mt-2 border-t border-border/60">
-                <Button
-                  variant={recordingEnabled ? "default" : "outline"}
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start",
-                    !recordingEnabled && "text-muted-foreground"
-                  )}
-                  onClick={toggleRecording}
-                >
-                  {recordingEnabled ? (
-                    <>
-                      <span className="relative flex h-2 w-2 mr-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/60 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
-                      </span>
-                      הקלטה פעילה
-                    </>
-                  ) : (
-                    <>
-                      <BellOff className="h-4 w-4 mr-2" />
-                      הקלטה כבויה
-                    </>
-                  )}
-                </Button>
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showMobileMenu && (
+        <div className="md:hidden border-t border-border/40">
+          <nav className="container max-w-5xl mx-auto flex flex-col py-3 px-4 space-y-1">
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "justify-start w-full",
+                  location.pathname === item.path && "bg-accent text-accent-foreground"
+                )}
+                onClick={() => navigate(item.path)}
+              >
+                <item.icon className="h-4 w-4 mr-2" />
+                {item.name}
+              </Button>
+            ))}
+            
+            <div className="pt-2 mt-2 border-t border-border/60">
+              <Button
+                variant={recordingEnabled ? "default" : "outline"}
+                size="sm"
+                className={cn(
+                  "w-full justify-start",
+                  !recordingEnabled && "text-muted-foreground"
+                )}
+                onClick={toggleRecording}
+              >
+                {recordingEnabled ? (
+                  <>
+                    <span className="relative flex h-2 w-2 mr-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/60 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
+                    </span>
+                    הקלטה פעילה
+                  </>
+                ) : (
+                  <>
+                    <BellOff className="h-4 w-4 mr-2" />
+                    הקלטה כבויה
+                  </>
+                )}
+              </Button>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
